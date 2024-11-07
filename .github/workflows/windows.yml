@@ -1,4 +1,4 @@
-name: CI
+name: Windows
 
 on:
   push:
@@ -13,19 +13,14 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
-          - macOS-latest
           - windows-latest
         raku-version:
-          - "2021.03"
-          - "latest"
+          - 'latest'
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: Raku/setup-raku@v1
         with:
           raku-version: ${{ matrix.raku-version }}
-      - name: Setup dependencies
-        run: raku -v && zef install --deps-only .
-      - name: Test code
-        run: zef test .
+      - name: Run Special Tests
+        run: raku run-tests -i
