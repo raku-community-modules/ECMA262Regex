@@ -1,6 +1,7 @@
-use v6;
 use ECMA262Regex;
 use Test;
+
+plan 19;
 
 ok ECMA262Regex::Parser.parse('^\d+$');
 ok ECMA262Regex::Parser.parse('a|b');
@@ -21,4 +22,5 @@ ok ECMA262Regex::Parser.parse('[-]{2}');
 ok ECMA262Regex::Parser.parse('^[\d.]+$');
 ok ECMA262Regex::Parser.parse('\t');
 nok ECMA262Regex::Parser.parse('\a');
-done-testing;
+
+# vim: expandtab shiftwidth=4

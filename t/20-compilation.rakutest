@@ -1,10 +1,11 @@
-use v6;
 use ECMA262Regex;
 use Test;
 
+plan 36;
+
 # `c` for `compile`
 sub c($str) {
-    ECMA262Regex::Parser.parse($str, actions => ECMA262Regex::ToPerl6Regex).made.Str;
+    ECMA262Regex::Parser.parse($str).made.Str;
 }
 
 is c('...'), '...', 'Any character';

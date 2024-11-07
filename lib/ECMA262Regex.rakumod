@@ -1,6 +1,4 @@
-use v6;
-
-my %control-char-to-unicode-name =
+my constant %control-char-to-unicode-name =
     A => <START OF HEADING>,
     B => <START OF TEXT>,
     C => <END OF TEXT>,
@@ -27,6 +25,8 @@ my %control-char-to-unicode-name =
     X => <CANCEL>,
     Y => <END OF MEDIUM>,
     Z => <SUBSTITUTE>;
+
+class ECMA262Regex::ToRakuRegex { ... }
 
 grammar ECMA262Regex::Parser {
     token TOP {
@@ -135,9 +135,13 @@ grammar ECMA262Regex::Parser {
         | <character-escape>
         | <character-class-escape>
     }
+
+    method parse($str, :$actions = ECMA262Regex::ToRakuRegex) {
+        nextwith($str, :$actions)
+    }
 }
 
-class ECMA262Regex::ToPerl6Regex {
+class ECMA262Regex::ToRakuRegex {
     method TOP($/) {
         make $<disjunction>.made;
     }
@@ -367,8 +371,12 @@ class ECMA262Regex {
         so ECMA262Regex::Parser.parse($str);
     }
 
-    method as-perl6($str) {
-        my $regex = ECMA262Regex::Parser.parse($str, actions => ECMA262Regex::ToPerl6Regex);
+    method as-perl6($str) is DEPRECATED("as-raku") {
+        self.as-raku($str)
+    }
+
+    method as-raku($str) {
+        my $regex = ECMA262Regex::Parser.parse($str);
         without $regex {
             die 'Regex is not valid!';
         }
@@ -377,8 +385,61 @@ class ECMA262Regex {
 
     method compile($regex) {
         use MONKEY-SEE-NO-EVAL;
-        my $pattern = self.as-perl6($regex);
+        my $pattern = self.as-raku($regex);
         my $compiled = EVAL '/' ~ $pattern ~ '/';
         $compiled;
     }
 }
+
+=begin pod
+
+=head1 NAME
+
+ECMA262Regex - provide support for ECMA262 regex notation
+
+=head1 SYNOPSIS
+
+=begin code :lang<raku>
+
+use ECMA262Regex;
+
+say ECMA262Regex.validate('\e');     # False;
+say ECMA262Regex.validate('^fo+\n'); # True
+
+# Translate regex into a Raku one (string form)
+say ECMA262Regex.as-raku('^fo+\n');  # '^fo+\n'
+say ECMA262Regex.as-raku('[^ab-d]'); # '<-[ab..d]>'
+
+# Compile textual ECMA262 regex into a Raku Regex object
+my $regex = ECMA262Regex.compile('^fo+\n');
+
+say "foo\n"  ~~ $regex; # Success
+say " foo\n" ~~ $regex; # Failure
+
+=end code
+
+=head1 DESCRIPTION
+
+This module parses L<ECMA262 regex syntax|https://262.ecma-international.org>
+and can also translate it to a Raku regexes, and compile it to a
+C<Regex> object.
+
+=head1 AUTHORS
+
+=item Jonathan Worthington
+=item Alexander Kiryuhin
+
+Source can be located at: https://github.com/raku-community-modules/ECMA262Regex .
+Comments and Pull Requests are welcome.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2018 - 2023 Edument AB
+
+Copyright 2024 The Raku Community
+
+This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
+
+=end pod
+
+# vim: expandtab shiftwidth=4

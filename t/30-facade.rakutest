@@ -1,6 +1,7 @@
-use v6;
 use ECMA262Regex;
 use Test;
+
+plan 5;
 
 nok ECMA262Regex.validate('\e'), 'Invalid regex returns False';
 ok ECMA262Regex.validate('^fo+\n'), 'Valid regex returns True';
@@ -12,4 +13,4 @@ my $regex = ECMA262Regex.compile('^fo+\n');
 ok "foo\n" ~~ $regex, 'Regex is compiled, successful check';
 nok " foo\n" ~~ $regex, 'Regex is compiled, failed check';
 
-done-testing;
+# vim: expandtab shiftwidth=4
